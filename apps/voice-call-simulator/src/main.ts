@@ -158,10 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   answerBtn.addEventListener('click', () => {
-    deviceSim.acceptIncoming(() => {
-      stopGlobalTimer();
-    });
-    startGlobalTimer(timerVal);
+    deviceSim.acceptIncoming(
+      () => {
+        startGlobalTimer(timerVal);
+      },
+      () => {
+        stopGlobalTimer();
+      }
+    );
   });
 
   declineBtn.addEventListener('click', () => {

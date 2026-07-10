@@ -268,22 +268,19 @@ export class DeviceSimulator {
     });
   }
 
-  acceptIncoming(onEnded: () => void) {
+  acceptIncoming(onConnected: () => void, onEnded: () => void) {
     if (!this.incomingInvite) return;
+    this.onCallConnectedCallback = onConnected;
     this.onCallEndedCallback = onEnded;
     this.log(`Accepting incoming call...`);
     
     const call = this.incomingInvite.accept();
     this.activeCall = call;
     
-    this.statusLabel.textContent = 'Connected';
-    this.timerVal.classList.add('active');
+    this.statusLabel.textContent = 'Connecting...';
     
     // Stop ringing pulse
     this.avatarContainer.classList.remove('is-ringing');
-
-    // Show call options panel when connected
-    this.optionsContainer.classList.remove('hide');
 
     this.showButtons(['hangup']);
     this.hideButtons(['call', 'answer', 'decline']);
