@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twilio Voice Call Simulator | Single-Device UI</title>
+    <meta name="description" content="Simulate in-app rider or driver voice calling using Twilio Voice JS SDK and manual session authentication inputs." />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <div class="header-branding">
+          <div class="header-logo">🎙️</div>
+          <h1>Twilio Call Simulator <span class="badge-single">Single Device</span></h1>
+        </div>
+        <p class="header-subtitle">Open this simulator in two different tabs or devices to test Rider-to-Driver calls.</p>
+      </header>
+
+      <main class="simulator-layout">
+        <!-- CONFIGURATION PANEL -->
+        <section class="config-panel">
+          <div class="panel-header">
+            <h2>Authentication Form</h2>
+            <span class="panel-badge">Clean BE mode</span>
+          </div>
+          
+          <form id="auth-form" class="form-container" onsubmit="return false;">
+            <div class="form-group">
+              <label for="input-app-context">App Context (Role)</label>
+              <select id="input-app-context" class="form-select">
+                <option value="rider">Rider (Passenger)</option>
+                <option value="driver">Driver (Partner)</option>
+              </select>
+              <span class="help-text">Select which role this tab represents.</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-user-id">x-user-id (User ID)</label>
+                <input type="text" id="input-user-id" class="form-input" placeholder="e.g. rider_123" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="input-device-id">x-device-id (Device ID)</label>
+                <input type="text" id="input-device-id" class="form-input" placeholder="e.g. sim_dev_1" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-token">Bearer Session Token (JWT)</label>
+              <textarea id="input-token" class="form-textarea" rows="3" placeholder="Paste your authentication JWT token here..." required></textarea>
+              <span class="help-text">Header parameter: Authorization: Bearer &lt;Token&gt;</span>
+            </div>
+
+            <div class="form-group">
+              <label for="input-ride-id">Active Ride ID</label>
+              <input type="text" id="input-ride-id" class="form-input" placeholder="e.g. ride_789" required />
+              <span class="help-text">Required to target and route calls in DB.</span>
+            </div>
+
+            <div class="form-group">
+              <label for="input-client-request-id">Client Request ID (Idempotency Key)</label>
+              <div class="input-with-button">
+                <input type="text" id="input-client-request-id" class="form-input font-mono" placeholder="UUID format" required />
+                <button type="button" id="btn-gen-uuid" class="btn btn-secondary-action" title="Generate New UUID">
+                  🔄 Gen UUID
+                </button>
+              </div>
+              <span class="help-text">Avoids duplicate active call records. Generate a new one for fresh calls.</span>
+            </div>
+
+            <button type="submit" id="btn-register-device" class="btn btn-initialize btn-block">
+              <span class="icon">⚡</span> Register & Connect Twilio SDK
+            </button>
+          </form>
+        </section>
+
+        <!-- DEVICE MOCKUP PANEL -->
+        <section class="device-panel" id="device-container">
+          <div class="device-frame">
+            <div class="device-notch"></div>
+            <div class="device-screen">
+              <div class="status-bar">
+                <span id="device-screen-label" class="device-label">RIDER APP</span>
+                <div class="network-indicators">
+                  <span class="signal">📶</span>
+                  <span class="battery">🔋 99%</span>
+                </div>
+              </div>
+              
+              <div class="content">
+                <div class="session-info">
+                  <div class="session-stat">
+                    <span class="stat-label">Identity ID</span>
+                    <span class="val-userId value-placeholder">-</span>
+                  </div>
+                  <div class="session-stat">
+                    <span class="stat-label">SDK Status</span>
+                    <span class="val-sdkStatus sdk-offline">Offline</span>
+                  </div>
+                </div>
+
+                <!-- Call UI Mockup -->
+                <div class="call-interface">
+                  <div class="caller-avatar-container">
+                    <div id="call-avatar" class="caller-avatar">🚗</div>
+                    <div class="pulse-ring"></div>
+                  </div>
+                  <div id="call-partner-label" class="caller-name">Driver Partner</div>
+                  <div class="call-status-label">Ready to connect</div>
+                  <div class="call-timer">00:00</div>
+
+                  <div class="call-controls">
+                    <button class="btn btn-call btn-success" id="btn-call" title="Call Callee">
+                      <span class="icon">📞</span> Call
+                    </button>
+                    <button class="btn btn-answer btn-success hide" id="btn-answer" title="Answer Incoming Call">
+                      <span class="icon">📞</span> Answer
+                    </button>
+                    <button class="btn btn-decline btn-danger hide" id="btn-decline" title="Decline Incoming Call">
+                      <span class="icon">📵</span> Decline
+                    </button>
+                    <button class="btn btn-hangup btn-danger hide" id="btn-hangup" title="Hang Up Current Call">
+                      <span class="icon">hangup</span> Hang Up
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Console logs for Twilio SDK Events -->
+                <div class="virtual-console">
+                  <div class="console-header">
+                    <span class="console-title">Twilio Client Log</span>
+                    <button class="btn-clear-console" title="Clear log">🧹</button>
+                  </div>
+                  <div class="console-output"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
