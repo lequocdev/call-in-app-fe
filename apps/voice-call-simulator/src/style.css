@@ -541,6 +541,65 @@ label {
   color: var(--color-success);
 }
 
+/* Call Mid-options (Mute Mic, Mute Speaker) */
+.call-options {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-option {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.btn-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-option.active {
+  background-color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 15px var(--color-danger-glow);
+}
+
+.btn-option .icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-option .label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  position: absolute;
+  bottom: -20px;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.btn-option.active .label {
+  color: var(--text-main);
+}
+
 .call-controls {
   margin-top: 1.75rem;
   display: flex;

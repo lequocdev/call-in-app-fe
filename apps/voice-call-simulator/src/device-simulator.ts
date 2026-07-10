@@ -14,6 +14,13 @@ export class DeviceSimulator {
   private timerVal: HTMLElement;
   private statusLabel: HTMLElement;
   private avatarContainer: HTMLElement;
+  private optionsContainer: HTMLElement;
+  private toggleMicBtn: HTMLElement;
+  private toggleSpeakerBtn: HTMLElement;
+
+  private isMicMuted = false;
+  private isSpeakerMuted = false;
+  private remoteAudioElement: HTMLAudioElement | null = null;
 
   private onCallConnectedCallback?: (callId: string) => void;
   private onCallEndedCallback?: () => void;
@@ -28,6 +35,32 @@ export class DeviceSimulator {
     this.timerVal = this.element.querySelector('.call-timer')!;
     this.statusLabel = this.element.querySelector('.call-status-label')!;
     this.avatarContainer = this.element.querySelector('.caller-avatar-container')!;
+    this.optionsContainer = this.element.querySelector('#call-options-container')!;
+    this.toggleMicBtn = this.element.querySelector('#btn-toggle-mic')!;
+    this.toggleSpeakerBtn = this.element.querySelector('#btn-toggle-speaker')!;
+
+    // Bind mute actions
+    this.toggleMicBtn.addEventListener('click', () => {
+      const muted = this.toggleMic();
+      if (muted) {
+        this.toggleMicBtn.classList.add('active');
+        this.toggleMicBtn.querySelector('.icon')!.textContent = '🔇';
+      } else {
+        this.toggleMicBtn.classList.remove('active');
+        this.toggleMicBtn.querySelector('.icon')!.textContent = '🎙️';
+      }
+    });
+
+    this.toggleSpeakerBtn.addEventListener('click', () => {
+      const muted = this.toggleSpeaker();
+      if (muted) {
+        this.toggleSpeakerBtn.classList.add('active');
+        this.toggleSpeakerBtn.querySelector('.icon')!.textContent = '🔇';
+      } else {
+        this.toggleSpeakerBtn.classList.remove('active');
+        this.toggleSpeakerBtn.querySelector('.icon')!.textContent = '🔊';
+      }
+    });
 
     // Set up clear console button
     const btnClear = this.element.querySelector('.btn-clear-console');
@@ -201,9 +234,20 @@ export class DeviceSimulator {
       
       // Stop ringing pulse
       this.avatarContainer.classList.remove('is-ringing');
+
+      // Show call options panel when connected
+      this.optionsContainer.classList.remove('hide');
       
       if (this.callId && this.onCallConnectedCallback) {
         this.onCallConnectedCallback(this.callId);
+      }
+    });
+
+    call.on('audio', (audioEl: HTMLAudioElement) => {
+      this.log(`Audio track received.`);
+      this.remoteAudioElement = audioEl;
+      if (this.remoteAudioElement) {
+        this.remoteAudioElement.muted = this.isSpeakerMuted;
       }
     });
 
@@ -237,6 +281,9 @@ export class DeviceSimulator {
     
     // Stop ringing pulse
     this.avatarContainer.classList.remove('is-ringing');
+
+    // Show call options panel when connected
+    this.optionsContainer.classList.remove('hide');
 
     this.showButtons(['hangup']);
     this.hideButtons(['call', 'answer', 'decline']);
@@ -284,8 +331,36 @@ export class DeviceSimulator {
     this.activeCall = null;
     this.incomingInvite = null;
 
+    // Reset mute options
+    this.isMicMuted = false;
+    this.isSpeakerMuted = false;
+    this.remoteAudioElement = null;
+    this.optionsContainer.classList.add('hide');
+
+    this.toggleMicBtn.classList.remove('active');
+    this.toggleMicBtn.querySelector('.icon')!.textContent = '🎙️';
+    this.toggleSpeakerBtn.classList.remove('active');
+    this.toggleSpeakerBtn.querySelector('.icon')!.textContent = '🔊';
+
     this.showButtons(['call']);
     this.hideButtons(['answer', 'decline', 'hangup']);
+  }
+
+  toggleMic(): boolean {
+    if (!this.activeCall) return false;
+    this.isMicMuted = !this.isMicMuted;
+    this.activeCall.mute(this.isMicMuted);
+    this.log(this.isMicMuted ? `Microphone muted.` : `Microphone unmuted.`);
+    return this.isMicMuted;
+  }
+
+  toggleSpeaker(): boolean {
+    this.isSpeakerMuted = !this.isSpeakerMuted;
+    if (this.remoteAudioElement) {
+      this.remoteAudioElement.muted = this.isSpeakerMuted;
+    }
+    this.log(this.isSpeakerMuted ? `Speaker muted (Tắt âm).` : `Speaker unmuted (Bật âm).`);
+    return this.isSpeakerMuted;
   }
 
   private showButtons(keys: ('call' | 'answer' | 'decline' | 'hangup')[]) {
