@@ -530,15 +530,26 @@ label {
 .call-timer {
   font-size: 1.5rem;
   font-family: var(--font-mono);
-  color: var(--text-main);
+  color: var(--color-success);
   font-weight: bold;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+  display: none; /* Hidden by default */
+  margin: 0.5rem 0;
 }
 
 .call-timer.active {
-  opacity: 1;
-  color: var(--color-success);
+  display: block; /* Shown only when call is connected */
+  animation: pulse-timer-glow 1.5s infinite alternate;
+}
+
+@keyframes pulse-timer-glow {
+  from {
+    opacity: 0.8;
+    text-shadow: 0 0 4px var(--color-success-glow);
+  }
+  to {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--color-success-glow);
+  }
 }
 
 /* Call Mid-options (Mute Mic, Mute Speaker) */
