@@ -228,18 +228,20 @@ export class DeviceSimulator {
 
   private bindCallEvents(call: any) {
     call.on('accept', () => {
-      this.log(`Outbound call accepted. Connected!`);
-      this.statusLabel.textContent = 'Connected';
-      this.timerVal.classList.add('active');
-      
-      // Stop ringing pulse
-      this.avatarContainer.classList.remove('is-ringing');
+      if (this.statusLabel.textContent !== 'Connected') {
+        this.log(`Call accepted. Connected!`);
+        this.statusLabel.textContent = 'Connected';
+        this.timerVal.classList.add('active');
+        
+        // Stop ringing pulse
+        this.avatarContainer.classList.remove('is-ringing');
 
-      // Show call options panel when connected
-      this.optionsContainer.classList.remove('hide');
-      
-      if (this.callId && this.onCallConnectedCallback) {
-        this.onCallConnectedCallback(this.callId);
+        // Show call options panel when connected
+        this.optionsContainer.classList.remove('hide');
+        
+        if (this.callId && this.onCallConnectedCallback) {
+          this.onCallConnectedCallback(this.callId);
+        }
       }
     });
 
@@ -274,10 +276,17 @@ export class DeviceSimulator {
     this.onCallEndedCallback = onEnded;
     this.log(`Accepting incoming call...`);
     
+    // Bind events before calling accept to prevent race conditions
+    this.bindCallEvents(this.incomingInvite);
+    
     const call = this.incomingInvite.accept();
     this.activeCall = call;
     
-    this.statusLabel.textContent = 'Connecting...';
+    this.statusLabel.textContent = 'Connected';
+    this.timerVal.classList.add('active');
+    
+    // Show call options panel when connected
+    this.optionsContainer.classList.remove('hide');
     
     // Stop ringing pulse
     this.avatarContainer.classList.remove('is-ringing');
@@ -285,7 +294,10 @@ export class DeviceSimulator {
     this.showButtons(['hangup']);
     this.hideButtons(['call', 'answer', 'decline']);
 
-    this.bindCallEvents(call);
+    if (this.onCallConnectedCallback) {
+      this.onCallConnectedCallback(this.callId || '');
+    }
+
     this.incomingInvite = null;
   }
 
