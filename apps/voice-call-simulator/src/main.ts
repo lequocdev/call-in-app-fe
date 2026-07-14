@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const rideIdInput = document.getElementById('input-ride-id') as HTMLInputElement;
   const clientRequestIdInput = document.getElementById('input-client-request-id') as HTMLInputElement;
   const genUuidBtn = document.getElementById('btn-gen-uuid') as HTMLButtonElement;
-  const loginRegisterBtn = document.getElementById('btn-login-register') as HTMLButtonElement;
+  const loginOnlyBtn = document.getElementById('btn-login-only') as HTMLButtonElement;
   const registerBtn = document.getElementById('btn-register-device') as HTMLButtonElement;
 
   const screenLabel = document.getElementById('device-screen-label') as HTMLElement;
@@ -97,60 +97,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply initially on load
   applyAutofillDefaults();
 
-  // Handle Auto-Login & SDK Register
-  loginRegisterBtn.addEventListener('click', async (e) => {
+  // Handle User Login Only
+  loginOnlyBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
     const phone = phoneInput.value.trim();
     const password = passwordInput.value.trim();
     const deviceId = deviceIdInput.value.trim();
     const appContext = appContextSelect.value as 'rider' | 'driver';
-    rideId = rideIdInput.value.trim();
 
-    if (!phone || !password || !deviceId || !rideId) {
-      deviceSim.log('Error: Phone, Password, Device ID, and Ride ID must be filled for Auto-Login.', true);
-      alert('Please fill out Phone, Password, Device ID, and Ride ID.');
+    if (!phone || !password || !deviceId) {
+      deviceSim.log('Error: Phone, Password, and Device ID must be filled to Login.', true);
+      alert('Please fill out Phone, Password, and Device ID.');
       return;
     }
 
-    loginRegisterBtn.disabled = true;
-    loginRegisterBtn.textContent = 'Logging in to Backend...';
-    deviceSim.log(`Logging in via API (Phone: ${phone})...`);
+    loginOnlyBtn.disabled = true;
+    loginOnlyBtn.textContent = 'Logging in...';
+    deviceSim.log(`Performing login via API (Phone: ${phone})...`);
 
     try {
-      // 1. Perform login
       const loginRes = await ApiClient.login(phone, password, deviceId, appContext);
       const sessionToken = loginRes.data.token;
       const responseUserId = loginRes.data.user.id.toString();
 
-      deviceSim.log(`Login Successful! Session Token retrieved.`);
-      // Update UI form fields
+      deviceSim.log(`Login successful! Session token populated.`);
       tokenInput.value = sessionToken;
       userIdInput.value = responseUserId;
 
-      // 2. Initialize and Register Twilio Device
-      loginRegisterBtn.textContent = 'Connecting Twilio SDK...';
-      deviceSim.log(`Registering device with identity: ${responseUserId}`);
-
-      const session: SessionContext = {
-        userId: responseUserId,
-        deviceId,
-        appContext,
-        token: sessionToken
-      };
-
-      await deviceSim.register(session);
-      loginRegisterBtn.disabled = false;
-      loginRegisterBtn.innerHTML = '<span class="icon">⚡</span> Auto-Login & Connect SDK';
+      loginOnlyBtn.disabled = false;
+      loginOnlyBtn.innerHTML = '<span class="icon">🔑</span> Login User';
     } catch (err: any) {
-      loginRegisterBtn.disabled = false;
-      loginRegisterBtn.innerHTML = '<span class="icon">⚡</span> Retry Auto-Login';
-      const errMsg = err?.message || (typeof err === 'string' ? err : '') || 'Unknown Connection Error';
-      deviceSim.log(`Auto-Login / Connection Failed: ${errMsg}`, true);
+      loginOnlyBtn.disabled = false;
+      loginOnlyBtn.innerHTML = '<span class="icon">🔑</span> Retry Login';
+      const errMsg = err?.message || (typeof err === 'string' ? err : '') || 'Unknown Login Error';
+      deviceSim.log(`Login failed: ${errMsg}`, true);
     }
   });
 
-  // Handle Custom Connect (Direct Connection bypasses login)
+  // Handle SDK Register & Connect (Direct connection using form fields)
   registerBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
@@ -160,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rideId = rideIdInput.value.trim();
 
     if (!userId || !deviceId || !token || !rideId) {
-      deviceSim.log('Error: User ID, Device ID, Bearer Token, and Ride ID must be filled to connect manually.', true);
+      deviceSim.log('Error: User ID, Device ID, Bearer Session Token, and Ride ID must be filled to connect.', true);
       alert('Please fill out User ID, Device ID, Bearer Session Token, and Ride ID.');
       return;
     }
@@ -176,13 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      deviceSim.log(`Connecting device manually with identity: ${userId}`);
+      deviceSim.log(`Registering device with identity: ${userId}`);
       await deviceSim.register(session);
       registerBtn.disabled = false;
-      registerBtn.innerHTML = '<span class="icon">🔗</span> Connect with Custom Tokens';
+      registerBtn.innerHTML = '<span class="icon">⚡</span> Connect Twilio SDK';
     } catch (err: any) {
       registerBtn.disabled = false;
-      registerBtn.innerHTML = '<span class="icon">🔗</span> Retry Manual Connect';
+      registerBtn.innerHTML = '<span class="icon">⚡</span> Connect Twilio SDK';
       const errMsg = err?.message || (typeof err === 'string' ? err : '') || 'Unknown Connection Error';
       deviceSim.log(`Connection Failed: ${errMsg}`, true);
     }
