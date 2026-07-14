@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
       avatarEl.textContent = '🚗';
       callBtn.innerHTML = '<span class="icon">📞</span> Call Driver';
 
-      userIdInput.value = '6';
+      userIdInput.value = '';
       deviceIdInput.value = 'demo-device-rider';
       phoneInput.value = '+12015550199';
       passwordInput.value = 'Password123!';
@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
       avatarEl.textContent = '👤';
       callBtn.innerHTML = '<span class="icon">📞</span> Call Rider';
 
-      userIdInput.value = '7';
+      userIdInput.value = '';
       deviceIdInput.value = 'demo-device-driver';
-      phoneInput.value = '+12015550199';
+      phoneInput.value = '+12015550299';
       passwordInput.value = 'Password123!';
     }
   }
