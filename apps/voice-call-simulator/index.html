@@ -31,53 +31,75 @@
           </div>
           
           <form id="auth-form" class="form-container" onsubmit="return false;">
-            <div class="form-group">
-              <label for="input-app-context">App Context (Role)</label>
-              <select id="input-app-context" class="form-select">
-                <option value="rider">Rider (Passenger)</option>
-                <option value="driver">Driver (Partner)</option>
-              </select>
-              <span class="help-text">Select which role this tab represents.</span>
-            </div>
+             <div class="form-group">
+               <label for="input-app-context">App Context (Role)</label>
+               <select id="input-app-context" class="form-select">
+                 <option value="rider">Rider (Passenger)</option>
+                 <option value="driver">Driver (Partner)</option>
+               </select>
+               <span class="help-text">Select which role this tab represents.</span>
+             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="input-user-id">x-user-id (User ID)</label>
-                <input type="text" id="input-user-id" class="form-input" placeholder="e.g. rider_123" required />
-              </div>
-              
-              <div class="form-group">
-                <label for="input-device-id">x-device-id (Device ID)</label>
-                <input type="text" id="input-device-id" class="form-input" placeholder="e.g. sim_dev_1" required />
-              </div>
-            </div>
+             <div class="form-row">
+               <div class="form-group">
+                 <label for="input-phone">Phone Number</label>
+                 <input type="text" id="input-phone" class="form-input" placeholder="e.g. +12025559001" required />
+               </div>
+               
+               <div class="form-group">
+                 <label for="input-password">Password</label>
+                 <input type="password" id="input-password" class="form-input" placeholder="Password" required />
+               </div>
+             </div>
 
-            <div class="form-group">
-              <label for="input-token">Bearer Session Token (JWT)</label>
-              <textarea id="input-token" class="form-textarea" rows="3" placeholder="Paste your authentication JWT token here..." required></textarea>
-              <span class="help-text">Header parameter: Authorization: Bearer &lt;Token&gt;</span>
-            </div>
+             <div class="form-row">
+               <div class="form-group">
+                 <label for="input-user-id">x-user-id (User ID)</label>
+                 <input type="text" id="input-user-id" class="form-input" placeholder="e.g. rider_123" required />
+               </div>
+               
+               <div class="form-group">
+                 <label for="input-device-id">x-device-id (Device ID)</label>
+                 <input type="text" id="input-device-id" class="form-input" placeholder="e.g. sim_dev_1" required />
+               </div>
+             </div>
 
-            <div class="form-group">
-              <label for="input-ride-id">Active Ride ID</label>
-              <input type="text" id="input-ride-id" class="form-input" placeholder="e.g. ride_789" required />
-              <span class="help-text">Required to target and route calls in DB.</span>
-            </div>
+             <div class="form-group">
+               <label for="input-token">Bearer Session Token (JWT)</label>
+               <textarea id="input-token" class="form-textarea" rows="2" placeholder="Session Bearer token will display here..." required></textarea>
+               <span class="help-text">Header parameter: Authorization: Bearer &lt;Token&gt;</span>
+             </div>
 
-            <div class="form-group">
-              <label for="input-client-request-id">Client Request ID (Idempotency Key)</label>
-              <div class="input-with-button">
-                <input type="text" id="input-client-request-id" class="form-input font-mono" placeholder="UUID format" required />
-                <button type="button" id="btn-gen-uuid" class="btn btn-secondary-action" title="Generate New UUID">
-                  🔄 Gen UUID
-                </button>
-              </div>
-              <span class="help-text">Avoids duplicate active call records. Generate a new one for fresh calls.</span>
-            </div>
+             <div class="form-group">
+               <label for="input-twilio-token">Twilio Access Token</label>
+               <textarea id="input-twilio-token" class="form-textarea font-mono" rows="2" placeholder="Twilio JWT will display here..." readonly></textarea>
+               <span class="help-text">Access token generated implicitly from /api/custom/voice/token</span>
+             </div>
 
-            <button type="submit" id="btn-register-device" class="btn btn-initialize btn-block">
-              <span class="icon">⚡</span> Register & Connect Twilio SDK
-            </button>
+             <div class="form-group">
+               <label for="input-ride-id">Active Ride ID</label>
+               <input type="text" id="input-ride-id" class="form-input" placeholder="e.g. ride_789" required />
+               <span class="help-text">Required to target and route calls in DB.</span>
+             </div>
+
+             <div class="form-group">
+               <label for="input-client-request-id">Client Request ID (Idempotency Key)</label>
+               <div class="input-with-button">
+                 <input type="text" id="input-client-request-id" class="form-input font-mono" placeholder="UUID format" required />
+                 <button type="button" id="btn-gen-uuid" class="btn btn-secondary-action" title="Generate New UUID">
+                   🔄 Gen UUID
+                 </button>
+               </div>
+               <span class="help-text">Avoids duplicate active call records. Generate a new one for fresh calls.</span>
+             </div>
+
+             <button type="submit" id="btn-login-register" class="btn btn-initialize btn-block">
+               <span class="icon">⚡</span> Auto-Login & Connect SDK
+             </button>
+
+             <button type="button" id="btn-register-device" class="btn btn-secondary-action btn-block" style="margin-top: 0.65rem; justify-content: center; width: 100%;">
+               <span class="icon">🔗</span> Connect with Custom Tokens
+             </button>
           </form>
         </section>
 

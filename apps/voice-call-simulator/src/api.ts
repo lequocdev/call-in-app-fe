@@ -25,7 +25,44 @@ export interface VoiceCallInitResponse {
   };
 }
 
+export interface LoginResponse {
+  success: boolean;
+  data: {
+    token: string;
+    user: {
+      id: number;
+      email: string;
+      fullName: string;
+      phone: string;
+    };
+  };
+}
+
 export class ApiClient {
+  /**
+   * Performs user login to retrieve session Bearer Token and User ID.
+   * Target endpoint: POST /api/auth/login
+   */
+  static async login(
+    phone: string,
+    password: string,
+    deviceId: string,
+    appContext: 'rider' | 'driver'
+  ): Promise<LoginResponse> {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ phone, password, deviceId, appContext }),
+    });
+    if (!res.ok) {
+      const errorJson = await res.json().catch(() => ({}));
+      throw new Error(errorJson?.error?.message || `Login failed: ${res.status}`);
+    }
+    return res.json();
+  }
+
   /**
    * Fetches the Twilio Voice access JWT token from Backend.
    * Target endpoint: POST /api/custom/voice/token

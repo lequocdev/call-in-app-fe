@@ -8,7 +8,7 @@ export class DeviceSimulator {
   private activeCall: any = null;
   private incomingInvite: any = null;
   private callId: string | null = null;
-  
+
   private logContainer: HTMLElement;
   private statusVal: HTMLElement;
   private timerVal: HTMLElement;
@@ -104,15 +104,20 @@ export class DeviceSimulator {
     const userIdEl = this.element.querySelector('.val-userId')!;
     userIdEl.textContent = session.userId;
     userIdEl.classList.remove('value-placeholder');
-    
+
     this.log(`Requesting Twilio token for user...`);
 
     try {
       const response = await ApiClient.getTwilioToken(session);
       const token = response.data.token;
-      
+
+      const twilioTokenEl = document.getElementById('input-twilio-token') as HTMLTextAreaElement;
+      if (twilioTokenEl) {
+        twilioTokenEl.value = token;
+      }
+
       this.log(`Token fetched successfully (length: ${token ? token.length : 0}).`);
-      
+
       // Decode JWT token for debugging
       try {
         const parts = token.split('.');
@@ -200,7 +205,7 @@ export class DeviceSimulator {
 
     this.log(`Creating call record on Backend...`);
     this.statusLabel.textContent = 'Calling...';
-    
+
     // Add calling pulse effect
     this.avatarContainer.classList.add('is-ringing');
 
@@ -208,7 +213,7 @@ export class DeviceSimulator {
       const callInit = await ApiClient.initiateCall(this.session, rideId, clientRequestId);
       this.callId = callInit.data.callId;
       this.log(`Call registered. Backend Call ID: ${this.callId}`);
-      
+
       this.log(`Connecting Twilio outbound connection...`);
       // Twilio outbound invite includes callId parameter for backend webhook mapping
       const call = await this.device.connect({
@@ -232,13 +237,13 @@ export class DeviceSimulator {
         this.log(`Call accepted. Connected!`);
         this.statusLabel.textContent = 'Connected';
         this.timerVal.classList.add('active');
-        
+
         // Stop ringing pulse
         this.avatarContainer.classList.remove('is-ringing');
 
         // Show call options panel when connected
         this.optionsContainer.classList.remove('hide');
-        
+
         if (this.callId && this.onCallConnectedCallback) {
           this.onCallConnectedCallback(this.callId);
         }
@@ -275,19 +280,19 @@ export class DeviceSimulator {
     this.onCallConnectedCallback = onConnected;
     this.onCallEndedCallback = onEnded;
     this.log(`Accepting incoming call...`);
-    
+
     // Bind events before calling accept to prevent race conditions
     this.bindCallEvents(this.incomingInvite);
-    
+
     const call = this.incomingInvite.accept();
     this.activeCall = call;
-    
+
     this.statusLabel.textContent = 'Connected';
     this.timerVal.classList.add('active');
-    
+
     // Show call options panel when connected
     this.optionsContainer.classList.remove('hide');
-    
+
     // Stop ringing pulse
     this.avatarContainer.classList.remove('is-ringing');
 
@@ -311,7 +316,7 @@ export class DeviceSimulator {
 
   async hangup() {
     this.log(`Hanging up local connection...`);
-    
+
     // 1. Terminate the Twilio call connection locally
     if (this.activeCall) {
       this.activeCall.disconnect();
