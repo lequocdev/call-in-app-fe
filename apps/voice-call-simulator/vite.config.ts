@@ -5,7 +5,7 @@ export default defineConfig({
     port: 3005,
     proxy: {
       '/api': {
-        target: 'https://guidance-manager-detection.ngrok-free.dev',
+        target: 'https://dev-cms.rac.kyanon.dev',
         changeOrigin: true,
         secure: false,
       },

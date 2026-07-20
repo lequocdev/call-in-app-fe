@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://guidance-manager-detection.ngrok-free.dev/api/:path*"
+      "destination": "https://dev-cms.rac.kyanon.dev/api/:path*"
     }
   ]
 }
